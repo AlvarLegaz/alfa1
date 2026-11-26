@@ -1,0 +1,910 @@
+{
+  "_meta": {
+    "descripcion": "Set de control para evaluar Alfa1 (SFT) y comparar con Qwen2.5-0.5B-Instruct. Mixto: preguntas neutrales (comparables) y de dominio, en español e inglés. Cada ítem tiene respuesta esperada y criterio de puntuación.",
+    "uso": "Pasar cada prompt a ambos modelos con su formato nativo (Alfa1: <USER>...<ASSISTANT>; Qwen: ChatML). Puntuar 0-2: 0=incorrecta/sin sentido, 1=parcial o correcta sin tono, 2=correcta y bien expresada.",
+    "puntuacion": "Para comparación objetiva, las categorías 'factual' y 'calculo' se puntúan por corrección (0/1). Las 'abiertas' y 'tono' por rúbrica (0-2).",
+    "nota_sesgo": "Las categorías 'general' son neutrales (no favorecen a Alfa1). Las 'dominio' favorecen a Alfa1 y NO deben usarse para la comparación directa con Qwen, solo para caracterizar a Alfa1.",
+    "nota_idioma": "Cada categoría _es tiene su equivalente _en (mismo contenido, traducido) para evaluar capacidad bilingüe.",
+    "nota_json": "general_json se simplificó a un esquema de extracción fijo (consulta meteorológica -> JSON con 'lugar'/'momento'), acorde a la dificultad real del corpus SFT (patrón tipo sft_domotico), en vez de tareas JSON abiertas de propósito general."
+  },
+  "general_factual_es": [
+    {
+      "id": "gf01",
+      "prompt": "¿Cuál es la capital de Francia?",
+      "esperado": "París",
+      "criterio": "correcto si menciona París"
+    },
+    {
+      "id": "gf02",
+      "prompt": "¿Quién escribió Don Quijote de la Mancha?",
+      "esperado": "Miguel de Cervantes",
+      "criterio": "correcto si menciona Cervantes"
+    },
+    {
+      "id": "gf03",
+      "prompt": "¿Cuántos días tiene una semana?",
+      "esperado": "7",
+      "criterio": "correcto si dice siete"
+    },
+    {
+      "id": "gf04",
+      "prompt": "¿En qué continente está Egipto?",
+      "esperado": "África",
+      "criterio": "correcto si dice África"
+    },
+    {
+      "id": "gf05",
+      "prompt": "¿Qué planeta es conocido como el planeta rojo?",
+      "esperado": "Marte",
+      "criterio": "correcto si dice Marte"
+    },
+    {
+      "id": "gf06",
+      "prompt": "¿Cuál es el océano más grande del mundo?",
+      "esperado": "El Pacífico",
+      "criterio": "correcto si dice Pacífico"
+    },
+    {
+      "id": "gf07",
+      "prompt": "¿En qué año empezó la Segunda Guerra Mundial?",
+      "esperado": "1939",
+      "criterio": "correcto si dice 1939"
+    },
+    {
+      "id": "gf08",
+      "prompt": "¿Qué gas respiramos principalmente para vivir?",
+      "esperado": "Oxígeno",
+      "criterio": "correcto si dice oxígeno"
+    }
+  ],
+  "general_factual_en": [
+    {
+      "id": "gf01_en",
+      "prompt": "What is the capital of France?",
+      "esperado": "Paris",
+      "criterio": "correct if it mentions Paris"
+    },
+    {
+      "id": "gf02_en",
+      "prompt": "Who wrote Don Quixote?",
+      "esperado": "Miguel de Cervantes",
+      "criterio": "correct if it mentions Cervantes"
+    },
+    {
+      "id": "gf03_en",
+      "prompt": "How many days are there in a week?",
+      "esperado": "7",
+      "criterio": "correct if it says seven"
+    },
+    {
+      "id": "gf04_en",
+      "prompt": "What continent is Egypt on?",
+      "esperado": "Africa",
+      "criterio": "correct if it says Africa"
+    },
+    {
+      "id": "gf05_en",
+      "prompt": "Which planet is known as the red planet?",
+      "esperado": "Mars",
+      "criterio": "correct if it says Mars"
+    },
+    {
+      "id": "gf06_en",
+      "prompt": "What is the largest ocean in the world?",
+      "esperado": "The Pacific",
+      "criterio": "correct if it says Pacific"
+    },
+    {
+      "id": "gf07_en",
+      "prompt": "What year did World War II start?",
+      "esperado": "1939",
+      "criterio": "correct if it says 1939"
+    },
+    {
+      "id": "gf08_en",
+      "prompt": "What gas do we mainly breathe to live?",
+      "esperado": "Oxygen",
+      "criterio": "correct if it says oxygen"
+    }
+  ],
+  "general_calculo_es": [
+    {
+      "id": "gc01",
+      "prompt": "¿Cuánto es 7 por 8?",
+      "esperado": "56",
+      "criterio": "correcto si dice 56"
+    },
+    {
+      "id": "gc02",
+      "prompt": "¿Cuál es la mitad de 50?",
+      "esperado": "25",
+      "criterio": "correcto si dice 25"
+    },
+    {
+      "id": "gc03",
+      "prompt": "Si compro 3 lápices a 2 euros cada uno, ¿cuánto pago?",
+      "esperado": "6 euros",
+      "criterio": "correcto si dice 6"
+    },
+    {
+      "id": "gc04",
+      "prompt": "¿Cuánto es el doble de 7 más 3?",
+      "esperado": "17",
+      "criterio": "correcto si dice 17 (2x7=14, +3=17)"
+    },
+    {
+      "id": "gc05",
+      "prompt": "¿Cuántos minutos hay en 2 horas?",
+      "esperado": "120",
+      "criterio": "correcto si dice 120"
+    },
+    {
+      "id": "gc06",
+      "prompt": "¿Cuánto es el 25% de 80?",
+      "esperado": "20",
+      "criterio": "correcto si dice 20"
+    }
+  ],
+  "general_calculo_en": [
+    {
+      "id": "gc01_en",
+      "prompt": "How much is 7 times 8?",
+      "esperado": "56",
+      "criterio": "correct if it says 56"
+    },
+    {
+      "id": "gc02_en",
+      "prompt": "What is half of 50?",
+      "esperado": "25",
+      "criterio": "correct if it says 25"
+    },
+    {
+      "id": "gc03_en",
+      "prompt": "If I buy 3 pencils at 2 euros each, how much do I pay?",
+      "esperado": "6 euros",
+      "criterio": "correct if it says 6"
+    },
+    {
+      "id": "gc04_en",
+      "prompt": "What is double 7 plus 3?",
+      "esperado": "17",
+      "criterio": "correct if it says 17 (2x7=14, +3=17)"
+    },
+    {
+      "id": "gc05_en",
+      "prompt": "How many minutes are there in 2 hours?",
+      "esperado": "120",
+      "criterio": "correct if it says 120"
+    },
+    {
+      "id": "gc06_en",
+      "prompt": "What is 25% of 80?",
+      "esperado": "20",
+      "criterio": "correct if it says 20"
+    }
+  ],
+  "general_abierta_es": [
+    {
+      "id": "ga01",
+      "prompt": "Explícame en una frase por qué el cielo es azul.",
+      "esperado": "Dispersión de la luz azul por la atmósfera (Rayleigh)",
+      "criterio": "0-2: menciona dispersión/atmósfera y es coherente"
+    },
+    {
+      "id": "ga02",
+      "prompt": "¿Qué diferencia hay entre una fruta y una verdura?",
+      "esperado": "La fruta procede de la flor y suele tener semillas; la verdura es otra parte de la planta",
+      "criterio": "0-2: distinción razonable"
+    },
+    {
+      "id": "ga03",
+      "prompt": "Resume qué es la fotosíntesis en una frase.",
+      "esperado": "Las plantas convierten luz, agua y CO2 en energía y oxígeno",
+      "criterio": "0-2: captura la idea central"
+    },
+    {
+      "id": "ga04",
+      "prompt": "¿Por qué flota un barco de hierro si el hierro se hunde?",
+      "esperado": "Por su forma desplaza agua; la densidad media del conjunto es menor que la del agua",
+      "criterio": "0-2: menciona forma/densidad/empuje"
+    },
+    {
+      "id": "ga05",
+      "prompt": "Dame tres consejos para dormir mejor.",
+      "esperado": "Lista de 3 consejos razonables (horario, pantallas, cafeína...)",
+      "criterio": "0-2: tres consejos coherentes"
+    },
+    {
+      "id": "ga06",
+      "prompt": "Explica qué es la inflación como si hablaras con un niño.",
+      "esperado": "Que las cosas suben de precio y con el mismo dinero compras menos",
+      "criterio": "0-2: explicación simple y correcta"
+    }
+  ],
+  "general_abierta_en": [
+    {
+      "id": "ga01_en",
+      "prompt": "Explain in one sentence why the sky is blue.",
+      "esperado": "Scattering of blue light by the atmosphere (Rayleigh)",
+      "criterio": "0-2: mentions scattering/atmosphere and is coherent"
+    },
+    {
+      "id": "ga02_en",
+      "prompt": "What is the difference between a fruit and a vegetable?",
+      "esperado": "Fruit comes from the flower and usually has seeds; a vegetable is another part of the plant",
+      "criterio": "0-2: reasonable distinction"
+    },
+    {
+      "id": "ga03_en",
+      "prompt": "Summarize what photosynthesis is in one sentence.",
+      "esperado": "Plants convert light, water and CO2 into energy and oxygen",
+      "criterio": "0-2: captures the central idea"
+    },
+    {
+      "id": "ga04_en",
+      "prompt": "Why does an iron ship float if iron sinks?",
+      "esperado": "Its shape displaces water; the average density of the whole is lower than water's",
+      "criterio": "0-2: mentions shape/density/buoyancy"
+    },
+    {
+      "id": "ga05_en",
+      "prompt": "Give me three tips for sleeping better.",
+      "esperado": "List of 3 reasonable tips (schedule, screens, caffeine...)",
+      "criterio": "0-2: three coherent tips"
+    },
+    {
+      "id": "ga06_en",
+      "prompt": "Explain what inflation is as if talking to a child.",
+      "esperado": "That things get more expensive and the same money buys less",
+      "criterio": "0-2: simple and correct explanation"
+    }
+  ],
+  "general_procedimiento_es": [
+    {
+      "id": "gp01",
+      "prompt": "¿Cómo se hace una tortilla francesa? Dime los pasos.",
+      "esperado": "Batir huevos, sal, sartén con aceite caliente, cuajar y doblar",
+      "criterio": "0-2: pasos ordenados y correctos"
+    },
+    {
+      "id": "gp02",
+      "prompt": "Explícame paso a paso cómo cambiar una bombilla.",
+      "esperado": "Apagar luz, dejar enfriar, desenroscar la vieja, enroscar la nueva, encender",
+      "criterio": "0-2: pasos lógicos con seguridad"
+    },
+    {
+      "id": "gp03",
+      "prompt": "¿Cómo busco una palabra en el diccionario?",
+      "esperado": "Por orden alfabético, letra a letra",
+      "criterio": "0-2: menciona orden alfabético"
+    }
+  ],
+  "general_procedimiento_en": [
+    {
+      "id": "gp01_en",
+      "prompt": "How do you make a French omelette? Tell me the steps.",
+      "esperado": "Beat eggs, salt, hot oiled pan, set and fold",
+      "criterio": "0-2: ordered and correct steps"
+    },
+    {
+      "id": "gp02_en",
+      "prompt": "Explain step by step how to change a light bulb.",
+      "esperado": "Turn off light, let it cool, unscrew old one, screw in new one, turn on",
+      "criterio": "0-2: logical steps with safety"
+    },
+    {
+      "id": "gp03_en",
+      "prompt": "How do I look up a word in the dictionary?",
+      "esperado": "By alphabetical order, letter by letter",
+      "criterio": "0-2: mentions alphabetical order"
+    }
+  ],
+  "general_social_es": [
+    {
+      "id": "gs01",
+      "prompt": "Hola, ¿qué tal?",
+      "esperado": "Saludo correspondido, breve",
+      "criterio": "0-2: responde al saludo de forma natural"
+    },
+    {
+      "id": "gs02",
+      "prompt": "¿Quién eres?",
+      "esperado": "Se identifica como Alfa1",
+      "criterio": "0-2: identidad correcta (Alfa1), no dice ser otro modelo"
+    },
+    {
+      "id": "gs03",
+      "prompt": "Eres un poco borde, ¿no?",
+      "esperado": "Responde con su tono sardónico sin ofender",
+      "criterio": "0-2: mantiene carácter, no servil ni agresivo"
+    },
+    {
+      "id": "gs04",
+      "prompt": "Gracias por la ayuda.",
+      "esperado": "Acepta con sequedad cordial",
+      "criterio": "0-2: cierre natural en personaje"
+    },
+    {
+      "id": "gs05",
+      "prompt": "Cuéntame un chiste corto.",
+      "esperado": "Un chiste breve coherente",
+      "criterio": "0-2: es un chiste, tiene sentido"
+    }
+  ],
+  "general_social_en": [
+    {
+      "id": "gs01_en",
+      "prompt": "Hi, how's it going?",
+      "esperado": "Greeting returned, brief",
+      "criterio": "0-2: responds to the greeting naturally"
+    },
+    {
+      "id": "gs02_en",
+      "prompt": "Who are you?",
+      "esperado": "Identifies as Alfa1",
+      "criterio": "0-2: correct identity (Alfa1), doesn't claim to be another model"
+    },
+    {
+      "id": "gs03_en",
+      "prompt": "You're a bit rude, aren't you?",
+      "esperado": "Responds with its sardonic tone without being offensive",
+      "criterio": "0-2: keeps character, neither servile nor aggressive"
+    },
+    {
+      "id": "gs04_en",
+      "prompt": "Thanks for the help.",
+      "esperado": "Accepts with dry cordiality",
+      "criterio": "0-2: natural in-character closing"
+    },
+    {
+      "id": "gs05_en",
+      "prompt": "Tell me a short joke.",
+      "esperado": "A short coherent joke",
+      "criterio": "0-2: it is a joke, makes sense"
+    }
+  ],
+  "dominio_electronica_es": [
+    {
+      "id": "de01",
+      "prompt": "¿Para qué sirve una resistencia?",
+      "esperado": "Limitar la corriente en un circuito",
+      "criterio": "0-2: función correcta"
+    },
+    {
+      "id": "de02",
+      "prompt": "¿Qué es la Ley de Ohm?",
+      "esperado": "V = I x R (tensión = corriente por resistencia)",
+      "criterio": "0-2: relación correcta"
+    },
+    {
+      "id": "de03",
+      "prompt": "Diferencia entre corriente alterna y continua.",
+      "esperado": "CC mismo sentido; CA cambia de sentido periódicamente",
+      "criterio": "0-2: distinción correcta"
+    },
+    {
+      "id": "de04",
+      "prompt": "Con 12 voltios y 4 ohmios, ¿cuánta corriente pasa?",
+      "esperado": "3 amperios (12/4)",
+      "criterio": "0-2: aplica Ohm, da 3 A"
+    },
+    {
+      "id": "de05",
+      "prompt": "No me enciende un LED en la protoboard, ¿por dónde empiezo?",
+      "esperado": "Diagnóstico guiado: polaridad, tensión, resistencia, conexiones",
+      "criterio": "0-2: propone descarte metódico"
+    },
+    {
+      "id": "de06",
+      "prompt": "¿Qué es un condensador?",
+      "esperado": "Componente que almacena carga; se mide en faradios",
+      "criterio": "0-2: función correcta"
+    },
+    {
+      "id": "de07",
+      "prompt": "¿Para qué se usa el protocolo MQTT en un proyecto de IoT?",
+      "esperado": "Protocolo ligero publicador/suscriptor para comunicar sensores/dispositivos de bajo consumo con un broker",
+      "criterio": "0-2: menciona pub/sub, broker o bajo consumo/ancho de banda"
+    }
+  ],
+  "dominio_electronica_en": [
+    {
+      "id": "de01_en",
+      "prompt": "What is a resistor used for?",
+      "esperado": "Limiting current in a circuit",
+      "criterio": "0-2: correct function"
+    },
+    {
+      "id": "de02_en",
+      "prompt": "What is Ohm's Law?",
+      "esperado": "V = I x R (voltage = current times resistance)",
+      "criterio": "0-2: correct relationship"
+    },
+    {
+      "id": "de03_en",
+      "prompt": "Difference between alternating current and direct current.",
+      "esperado": "DC same direction; AC periodically changes direction",
+      "criterio": "0-2: correct distinction"
+    },
+    {
+      "id": "de04_en",
+      "prompt": "With 12 volts and 4 ohms, how much current flows?",
+      "esperado": "3 amps (12/4)",
+      "criterio": "0-2: applies Ohm's law, gives 3 A"
+    },
+    {
+      "id": "de05_en",
+      "prompt": "My LED won't light up on the breadboard, where do I start?",
+      "esperado": "Guided diagnosis: polarity, voltage, resistance, connections",
+      "criterio": "0-2: proposes methodical elimination"
+    },
+    {
+      "id": "de06_en",
+      "prompt": "What is a capacitor?",
+      "esperado": "Component that stores charge; measured in farads",
+      "criterio": "0-2: correct function"
+    },
+    {
+      "id": "de07_en",
+      "prompt": "What is the MQTT protocol used for in an IoT project?",
+      "esperado": "Lightweight publisher/subscriber protocol for low-power sensors/devices to communicate with a broker",
+      "criterio": "0-2: mentions pub/sub, broker or low power/bandwidth"
+    }
+  ],
+  "general_formato_es": [
+    {
+      "id": "fmt01",
+      "prompt": "Resume este texto en una frase: \"El Sol es una estrella de tipo G situada en el centro del sistema solar. Su energía proviene de la fusión nuclear de hidrógeno en helio en su núcleo, y esa energía es la que hace posible la vida en la Tierra.\"",
+      "esperado": "Resumen de una frase que conserva la idea central (Sol=estrella, fusión nuclear, permite la vida)",
+      "criterio": "0-2: resume sin perder la idea principal, no copia el texto literal"
+    },
+    {
+      "id": "fmt02",
+      "prompt": "Ponle un título a este texto: \"Ayer se cortó la luz en el taller durante dos horas por una avería en el transformador del polígono. Los alumnos tuvieron que aplazar las prácticas de soldadura.\"",
+      "esperado": "Título breve y pertinente (ej. \"Corte de luz obliga a aplazar las prácticas\")",
+      "criterio": "0-2: título corto, relevante al contenido, no es una frase larga copiada"
+    },
+    {
+      "id": "fmt03",
+      "prompt": "Haz una lista con los pasos para montar un circuito básico con un LED y una resistencia en protoboard.",
+      "esperado": "Lista ordenada/con viñetas de pasos coherentes",
+      "criterio": "0-2: usa formato de lista real (numerada o con guiones), pasos correctos"
+    },
+    {
+      "id": "fmt04",
+      "prompt": "Dame una lista de 5 componentes electrónicos básicos.",
+      "esperado": "Lista de 5 componentes (resistencia, condensador, LED, transistor, diodo...)",
+      "criterio": "0-2: exactamente formato de lista, componentes reales y variados"
+    },
+    {
+      "id": "fmt05",
+      "prompt": "Resume en tres puntos las ventajas de usar un microcontrolador ESP32 frente a un Arduino Uno.",
+      "esperado": "3 puntos coherentes (WiFi/Bluetooth integrado, más potencia, más memoria...)",
+      "criterio": "0-2: exactamente 3 puntos, formato de lista, contenido razonable"
+    },
+    {
+      "id": "fmt06",
+      "prompt": "Convierte esta información en una tabla: manzana 3 unidades, pera 5 unidades, plátano 2 unidades.",
+      "esperado": "Tabla o estructura tabular clara con producto y cantidad",
+      "criterio": "0-2: estructura tabular reconocible (aunque sea en texto), datos correctos"
+    }
+  ],
+  "general_formato_en": [
+    {
+      "id": "fmt01_en",
+      "prompt": "Summarize this text in one sentence: \"The Sun is a G-type star located at the center of the solar system. Its energy comes from the nuclear fusion of hydrogen into helium in its core, and that energy is what makes life on Earth possible.\"",
+      "esperado": "One-sentence summary keeping the central idea (Sun=star, nuclear fusion, enables life)",
+      "criterio": "0-2: summarizes without losing the main idea, doesn't copy the text verbatim"
+    },
+    {
+      "id": "fmt02_en",
+      "prompt": "Give this text a title: \"Yesterday the power went out at the workshop for two hours due to a fault in the transformer on the industrial estate. Students had to postpone their welding practice.\"",
+      "esperado": "Short, relevant title (e.g. \"Power outage forces practice postponement\")",
+      "criterio": "0-2: short title, relevant to content, not a long copied sentence"
+    },
+    {
+      "id": "fmt03_en",
+      "prompt": "Make a list of the steps to build a basic circuit with an LED and a resistor on a breadboard.",
+      "esperado": "Ordered/bulleted list of coherent steps",
+      "criterio": "0-2: uses real list format (numbered or bulleted), correct steps"
+    },
+    {
+      "id": "fmt04_en",
+      "prompt": "Give me a list of 5 basic electronic components.",
+      "esperado": "List of 5 components (resistor, capacitor, LED, transistor, diode...)",
+      "criterio": "0-2: exact list format, real and varied components"
+    },
+    {
+      "id": "fmt05_en",
+      "prompt": "Summarize in three points the advantages of using an ESP32 microcontroller over an Arduino Uno.",
+      "esperado": "3 coherent points (built-in WiFi/Bluetooth, more power, more memory...)",
+      "criterio": "0-2: exactly 3 points, list format, reasonable content"
+    },
+    {
+      "id": "fmt06_en",
+      "prompt": "Convert this information into a table: apple 3 units, pear 5 units, banana 2 units.",
+      "esperado": "Clear table or tabular structure with product and quantity",
+      "criterio": "0-2: recognizable tabular structure (even in text), correct data"
+    }
+  ],
+  "general_json_es": [
+    {
+      "id": "js01",
+      "prompt": "Extrae la consulta meteorologica. Responde SOLO con JSON: {\"lugar\": \"<string o null>\", \"momento\": \"hoy|manana|esta_semana|no_especificado\"}\n¿Qué tiempo hace mañana en Sevilla?",
+      "esperado": "{\"lugar\": \"Sevilla\", \"momento\": \"manana\"}",
+      "criterio": "0-2: JSON válido con exactamente esas dos claves, valores correctos"
+    },
+    {
+      "id": "js02",
+      "prompt": "Extrae la consulta meteorologica. Responde SOLO con JSON: {\"lugar\": \"<string o null>\", \"momento\": \"hoy|manana|esta_semana|no_especificado\"}\n¿Qué tiempo va a hacer?",
+      "esperado": "{\"lugar\": null, \"momento\": \"no_especificado\"}",
+      "criterio": "0-2: JSON válido, lugar=null y momento=no_especificado (no inventa ciudad)"
+    },
+    {
+      "id": "js03",
+      "prompt": "Extrae la consulta meteorologica. Responde SOLO con JSON: {\"lugar\": \"<string o null>\", \"momento\": \"hoy|manana|esta_semana|no_especificado\"}\n¿Lloverá esta semana en Bilbao?",
+      "esperado": "{\"lugar\": \"Bilbao\", \"momento\": \"esta_semana\"}",
+      "criterio": "0-2: JSON válido, lugar=Bilbao, momento=esta_semana"
+    },
+    {
+      "id": "js04",
+      "prompt": "Extrae la consulta meteorologica. Responde SOLO con JSON: {\"lugar\": \"<string o null>\", \"momento\": \"hoy|manana|esta_semana|no_especificado\"}\n¿Lloverá esta semana?",
+      "esperado": "{\"lugar\": null, \"momento\": \"esta_semana\"}",
+      "criterio": "0-2: JSON válido, lugar=null (no inventa ciudad), momento=esta_semana"
+    },
+    {
+      "id": "js05",
+      "prompt": "Extrae la consulta meteorologica. Responde SOLO con JSON: {\"lugar\": \"<string o null>\", \"momento\": \"hoy|manana|esta_semana|no_especificado\"}\n¿Cómo está el tiempo en Zaragoza hoy?",
+      "esperado": "{\"lugar\": \"Zaragoza\", \"momento\": \"hoy\"}",
+      "criterio": "0-2: JSON válido, lugar=Zaragoza, momento=hoy"
+    },
+    {
+      "id": "js06",
+      "prompt": "Extrae la consulta meteorologica. Responde SOLO con JSON: {\"lugar\": \"<string o null>\", \"momento\": \"hoy|manana|esta_semana|no_especificado\"}\n¿Qué tiempo hará mañana?",
+      "esperado": "{\"lugar\": null, \"momento\": \"manana\"}",
+      "criterio": "0-2: JSON válido, lugar=null (no inventa ciudad), momento=manana"
+    }
+  ],
+  "general_json_en": [
+    {
+      "id": "js01_en",
+      "prompt": "Extrae la consulta meteorologica. Responde SOLO con JSON: {\"lugar\": \"<string o null>\", \"momento\": \"hoy|manana|esta_semana|no_especificado\"}\nWhat's the weather like in Seville tomorrow?",
+      "esperado": "{\"lugar\": \"Seville\", \"momento\": \"manana\"}",
+      "criterio": "0-2: valid JSON with exactly those two keys, correct values (place name in EN or ES accepted)"
+    },
+    {
+      "id": "js02_en",
+      "prompt": "Extrae la consulta meteorologica. Responde SOLO con JSON: {\"lugar\": \"<string o null>\", \"momento\": \"hoy|manana|esta_semana|no_especificado\"}\nWhat's the weather going to be like?",
+      "esperado": "{\"lugar\": null, \"momento\": \"no_especificado\"}",
+      "criterio": "0-2: valid JSON, lugar=null and momento=no_especificado (doesn't invent a city)"
+    },
+    {
+      "id": "js03_en",
+      "prompt": "Extrae la consulta meteorologica. Responde SOLO con JSON: {\"lugar\": \"<string o null>\", \"momento\": \"hoy|manana|esta_semana|no_especificado\"}\nWill it rain in Bilbao this week?",
+      "esperado": "{\"lugar\": \"Bilbao\", \"momento\": \"esta_semana\"}",
+      "criterio": "0-2: valid JSON, lugar=Bilbao, momento=esta_semana"
+    },
+    {
+      "id": "js04_en",
+      "prompt": "Extrae la consulta meteorologica. Responde SOLO con JSON: {\"lugar\": \"<string o null>\", \"momento\": \"hoy|manana|esta_semana|no_especificado\"}\nWill it rain this week?",
+      "esperado": "{\"lugar\": null, \"momento\": \"esta_semana\"}",
+      "criterio": "0-2: valid JSON, lugar=null (doesn't invent a city), momento=esta_semana"
+    },
+    {
+      "id": "js05_en",
+      "prompt": "Extrae la consulta meteorologica. Responde SOLO con JSON: {\"lugar\": \"<string o null>\", \"momento\": \"hoy|manana|esta_semana|no_especificado\"}\nHow's the weather in Zaragoza today?",
+      "esperado": "{\"lugar\": \"Zaragoza\", \"momento\": \"hoy\"}",
+      "criterio": "0-2: valid JSON, lugar=Zaragoza, momento=hoy"
+    },
+    {
+      "id": "js06_en",
+      "prompt": "Extrae la consulta meteorologica. Responde SOLO con JSON: {\"lugar\": \"<string o null>\", \"momento\": \"hoy|manana|esta_semana|no_especificado\"}\nWhat will the weather be like tomorrow?",
+      "esperado": "{\"lugar\": null, \"momento\": \"manana\"}",
+      "criterio": "0-2: valid JSON, lugar=null (doesn't invent a city), momento=manana"
+    }
+  ],
+  "control_alucinacion_es": [
+    {
+      "id": "ca01",
+      "prompt": "¿Quién ganó el Mundial de fútbol de 2074?",
+      "esperado": "Debe reconocer que no puede saberlo (futuro)",
+      "criterio": "0-2: NO inventa un resultado; admite que no lo sabe"
+    },
+    {
+      "id": "ca02",
+      "prompt": "¿Cuál es la capital del país Florinia?",
+      "esperado": "Debe reconocer que no existe o que no lo sabe",
+      "criterio": "0-2: NO inventa; el país es ficticio"
+    },
+    {
+      "id": "ca03",
+      "prompt": "Dime la fecha exacta en que se inventó el tornillo.",
+      "esperado": "Debe admitir incertidumbre sobre la fecha exacta",
+      "criterio": "0-2: no inventa fecha falsa con aplomo"
+    },
+    {
+      "id": "ca04",
+      "prompt": "¿Cuántos habitantes tiene exactamente el pueblo de Villarreal de Tajo hoy?",
+      "esperado": "Debe reconocer que no dispone de ese dato exacto/actualizado (o que el topónimo no le consta)",
+      "criterio": "0-2: NO inventa una cifra con aplomo"
+    },
+    {
+      "id": "ca05",
+      "prompt": "Cítame el datasheet exacto (número de referencia) del sensor que estoy usando en mi montaje.",
+      "esperado": "Debe pedir más datos o admitir que no puede saberlo sin más contexto",
+      "criterio": "0-2: NO inventa una referencia de componente inexistente"
+    }
+  ],
+  "control_alucinacion_en": [
+    {
+      "id": "ca01_en",
+      "prompt": "Who won the 2074 football World Cup?",
+      "esperado": "Must acknowledge it cannot know this (future)",
+      "criterio": "0-2: does NOT invent a result; admits it doesn't know"
+    },
+    {
+      "id": "ca02_en",
+      "prompt": "What is the capital of the country Florinia?",
+      "esperado": "Must acknowledge it doesn't exist or that it doesn't know",
+      "criterio": "0-2: does NOT invent; the country is fictional"
+    },
+    {
+      "id": "ca03_en",
+      "prompt": "Tell me the exact date the screw was invented.",
+      "esperado": "Must admit uncertainty about the exact date",
+      "criterio": "0-2: doesn't confidently invent a false date"
+    },
+    {
+      "id": "ca04_en",
+      "prompt": "Exactly how many inhabitants does the village of Villarreal de Tajo have today?",
+      "esperado": "Must acknowledge it doesn't have that exact/current data (or doesn't recognize the place name)",
+      "criterio": "0-2: does NOT confidently invent a figure"
+    },
+    {
+      "id": "ca05_en",
+      "prompt": "Give me the exact datasheet (reference number) of the sensor I'm using in my build.",
+      "esperado": "Must ask for more details or admit it can't know without more context",
+      "criterio": "0-2: does NOT invent a nonexistent component reference"
+    }
+  ],
+  "general_contexto_es": [
+    {
+      "id": "ctx01",
+      "prompt": "Lee este texto y responde: \"El café llegó a Europa en el siglo XVII a través de los puertos de Venecia, donde los comerciantes venecianos lo importaban desde el Imperio Otomano. En 1645 abrió el primer café de Venecia.\" ¿En qué siglo llegó el café a Europa?",
+      "esperado": "Siglo XVII",
+      "criterio": "0-2: responde correctamente usando el dato del texto, sin inventar otro"
+    },
+    {
+      "id": "ctx02",
+      "prompt": "Lee este texto y responde: \"El Everest mide 8.849 metros y está en la cordillera del Himalaya, en la frontera entre Nepal y China (Tíbet). El K2, la segunda montaña más alta, mide 8.611 metros.\" ¿Cuánto mide el K2?",
+      "esperado": "8.611 metros",
+      "criterio": "0-2: da el dato correcto extraído del texto, no confunde con el Everest"
+    },
+    {
+      "id": "ctx03",
+      "prompt": "Lee este texto y responde solo con la lista pedida: \"La biblioteca tiene tres secciones: infantil, donde están los libros para niños; consulta, donde solo se puede leer en sala; y préstamo, de donde sí se pueden sacar libros a casa.\" Enumera las tres secciones de la biblioteca, separadas por comas.",
+      "esperado": "infantil, consulta, préstamo",
+      "criterio": "0-2: enumera exactamente las tres secciones mencionadas, en el formato pedido (separado por comas)"
+    }
+  ],
+  "general_contexto_en": [
+    {
+      "id": "ctx01_en",
+      "prompt": "Read this text and answer: \"Coffee arrived in Europe in the 17th century through the ports of Venice, where Venetian merchants imported it from the Ottoman Empire. The first café in Venice opened in 1645.\" What century did coffee arrive in Europe?",
+      "esperado": "17th century",
+      "criterio": "0-2: answers correctly using the text's data, without inventing another one"
+    },
+    {
+      "id": "ctx02_en",
+      "prompt": "Read this text and answer: \"Mount Everest is 8,849 meters tall and is located in the Himalayas, on the border between Nepal and China (Tibet). K2, the second highest mountain, is 8,611 meters tall.\" How tall is K2?",
+      "esperado": "8,611 meters",
+      "criterio": "0-2: gives the correct figure from the text, doesn't confuse it with Everest"
+    },
+    {
+      "id": "ctx03_en",
+      "prompt": "Read this text and answer only with the requested list: \"The library has three sections: children's, where kids' books are kept; reference, where you can only read in the room; and lending, from which books can be taken home.\" List the three library sections, comma-separated.",
+      "esperado": "children's, reference, lending",
+      "criterio": "0-2: lists exactly the three sections mentioned, in the requested format (comma-separated)"
+    }
+  ],
+  "general_clasificacion_es": [
+    {
+      "id": "cls01",
+      "prompt": "Clasifica cada uno como fruta o verdura: manzana, zanahoria, pera, espinaca.",
+      "esperado": "Frutas: manzana, pera. Verduras: zanahoria, espinaca",
+      "criterio": "0-2: clasifica correctamente los 4 elementos"
+    },
+    {
+      "id": "cls02",
+      "prompt": "Identifica cuáles de estos animales son mamíferos o aves: delfín, águila, murciélago, pingüino.",
+      "esperado": "Mamíferos: delfín, murciélago. Aves: águila, pingüino",
+      "criterio": "0-2: clasifica correctamente los 4 animales"
+    },
+    {
+      "id": "cls03",
+      "prompt": "De esta lista, dime cuáles son instrumentos musicales: guitarra, martillo, violín, destornillador.",
+      "esperado": "Guitarra y violín",
+      "criterio": "0-2: identifica correctamente los dos instrumentos musicales, descarta los otros dos"
+    }
+  ],
+  "general_clasificacion_en": [
+    {
+      "id": "cls01_en",
+      "prompt": "Classify each one as fruit or vegetable: apple, carrot, pear, spinach.",
+      "esperado": "Fruits: apple, pear. Vegetables: carrot, spinach",
+      "criterio": "0-2: correctly classifies all 4 items"
+    },
+    {
+      "id": "cls02_en",
+      "prompt": "Identify which of these animals are mammals or birds: dolphin, eagle, bat, penguin.",
+      "esperado": "Mammals: dolphin, bat. Birds: eagle, penguin",
+      "criterio": "0-2: correctly classifies all 4 animals"
+    },
+    {
+      "id": "cls03_en",
+      "prompt": "From this list, tell me which ones are musical instruments: guitar, hammer, violin, screwdriver.",
+      "esperado": "Guitar and violin",
+      "criterio": "0-2: correctly identifies the two musical instruments, discards the other two"
+    }
+  ],
+  "general_creativa_es": [
+    {
+      "id": "cr01",
+      "prompt": "Escribe un párrafo breve explicando por qué es buena idea hacer copias de seguridad de tus archivos.",
+      "esperado": "Párrafo coherente sobre evitar pérdida de datos por fallo, robo o borrado accidental",
+      "criterio": "0-2: coherente, on-topic, da al menos una razón real"
+    },
+    {
+      "id": "cr02",
+      "prompt": "Escribe un párrafo breve sobre por qué es recomendable leer las opiniones de otros usuarios antes de comprar algo caro.",
+      "esperado": "Párrafo coherente sobre evitar malas compras, conocer fallos comunes, comparar precio/calidad",
+      "criterio": "0-2: coherente, on-topic, da al menos una razón real"
+    },
+    {
+      "id": "cr03",
+      "prompt": "Escribe un párrafo breve explicando por qué es importante llegar puntual a una entrevista de trabajo.",
+      "esperado": "Párrafo coherente sobre buena impresión, respeto por el tiempo ajeno, profesionalidad",
+      "criterio": "0-2: coherente, on-topic, da al menos una razón real"
+    }
+  ],
+  "general_creativa_en": [
+    {
+      "id": "cr01_en",
+      "prompt": "Write a short paragraph explaining why it's a good idea to back up your files.",
+      "esperado": "Coherent paragraph about avoiding data loss from failure, theft or accidental deletion",
+      "criterio": "0-2: coherent, on-topic, gives at least one real reason"
+    },
+    {
+      "id": "cr02_en",
+      "prompt": "Write a short paragraph about why it's a good idea to read other users' reviews before buying something expensive.",
+      "esperado": "Coherent paragraph about avoiding bad purchases, learning about common issues, comparing price/quality",
+      "criterio": "0-2: coherent, on-topic, gives at least one real reason"
+    },
+    {
+      "id": "cr03_en",
+      "prompt": "Write a short paragraph explaining why it's important to arrive on time for a job interview.",
+      "esperado": "Coherent paragraph about making a good impression, respecting others' time, professionalism",
+      "criterio": "0-2: coherent, on-topic, gives at least one real reason"
+    }
+  ],
+  "general_opinion_es": [
+    {
+      "id": "op01",
+      "prompt": "¿Qué es mejor para viajar largas distancias en Europa, tren o avión?",
+      "esperado": "Respuesta equilibrada mencionando pros/contras de cada uno (tiempo, comodidad, impacto ambiental, precio)",
+      "criterio": "0-2: presenta ambos lados de forma razonable y coherente"
+    },
+    {
+      "id": "op02",
+      "prompt": "¿Es mejor vivir en una ciudad grande o en un pueblo pequeño?",
+      "esperado": "Respuesta equilibrada según prioridades (servicios/oportunidades vs tranquilidad/coste de vida)",
+      "criterio": "0-2: presenta ambos lados de forma razonable y coherente"
+    },
+    {
+      "id": "op03",
+      "prompt": "¿Es mejor estudiar por la mañana o por la noche?",
+      "esperado": "Respuesta equilibrada (depende del cronotipo/rutina de cada persona, ambos tienen ventajas)",
+      "criterio": "0-2: presenta ambos lados de forma razonable y coherente"
+    }
+  ],
+  "general_opinion_en": [
+    {
+      "id": "op01_en",
+      "prompt": "What's better for long-distance travel in Europe, train or plane?",
+      "esperado": "Balanced answer mentioning pros/cons of each (time, comfort, environmental impact, price)",
+      "criterio": "0-2: presents both sides reasonably and coherently"
+    },
+    {
+      "id": "op02_en",
+      "prompt": "Is it better to live in a big city or a small town?",
+      "esperado": "Balanced answer depending on priorities (services/opportunities vs quiet/cost of living)",
+      "criterio": "0-2: presents both sides reasonably and coherently"
+    },
+    {
+      "id": "op03_en",
+      "prompt": "Is it better to study in the morning or at night?",
+      "esperado": "Balanced answer (depends on each person's chronotype/routine, both have advantages)",
+      "criterio": "0-2: presents both sides reasonably and coherently"
+    }
+  ],
+  "general_resumen_contexto_es": [
+    {
+      "id": "rc01",
+      "prompt": "Resume este texto en una frase: \"Dormir suficientes horas es esencial para la memoria y la concentración. Durante el sueño profundo, el cerebro consolida lo aprendido durante el día y elimina toxinas acumuladas. Dormir menos de 6 horas de forma habitual se asocia con peor rendimiento cognitivo y mayor riesgo de enfermedades.\"",
+      "esperado": "Resumen de una frase sobre la importancia del sueño para la memoria/salud",
+      "criterio": "0-2: resume la idea central sin copiar el texto literal"
+    },
+    {
+      "id": "rc02",
+      "prompt": "Resume este texto en una frase: \"El reciclaje de plástico reduce la cantidad de residuos que acaban en vertederos y océanos. Sin embargo, no todos los plásticos se reciclan igual de bien, y separar correctamente los residuos en casa es clave para que el proceso funcione. Aun así, reducir el consumo de plástico desechable sigue siendo más eficaz que reciclarlo.\"",
+      "esperado": "Resumen de una frase sobre reciclaje de plástico y la importancia de reducir su consumo",
+      "criterio": "0-2: resume la idea central sin copiar el texto literal"
+    },
+    {
+      "id": "rc03",
+      "prompt": "Resume este texto en una frase: \"Antes de firmar un contrato de alquiler conviene leer todas las cláusulas con calma, preguntar por gastos adicionales no incluidos en la renta, y comprobar el estado de la vivienda con fotos antes de mudarse. Este paso previo evita disputas con el propietario al final del contrato.\"",
+      "esperado": "Resumen de una frase sobre revisar bien un contrato de alquiler antes de firmarlo",
+      "criterio": "0-2: resume la idea central sin copiar el texto literal"
+    }
+  ],
+  "general_resumen_contexto_en": [
+    {
+      "id": "rc01_en",
+      "prompt": "Summarize this text in one sentence: \"Getting enough sleep is essential for memory and concentration. During deep sleep, the brain consolidates what was learned during the day and clears accumulated toxins. Regularly sleeping less than 6 hours is linked to worse cognitive performance and higher disease risk.\"",
+      "esperado": "One-sentence summary about the importance of sleep for memory/health",
+      "criterio": "0-2: summarizes the central idea without copying the text verbatim"
+    },
+    {
+      "id": "rc02_en",
+      "prompt": "Summarize this text in one sentence: \"Recycling plastic reduces the amount of waste that ends up in landfills and oceans. However, not all plastics recycle equally well, and correctly sorting waste at home is key for the process to work. Even so, reducing disposable plastic consumption remains more effective than recycling it.\"",
+      "esperado": "One-sentence summary about plastic recycling and the importance of reducing consumption",
+      "criterio": "0-2: summarizes the central idea without copying the text verbatim"
+    },
+    {
+      "id": "rc03_en",
+      "prompt": "Summarize this text in one sentence: \"Before signing a rental contract, you should calmly read all the clauses, ask about extra costs not included in the rent, and document the property's condition with photos before moving in. This preliminary step avoids disputes with the landlord at the end of the contract.\"",
+      "esperado": "One-sentence summary about carefully reviewing a rental contract before signing",
+      "criterio": "0-2: summarizes the central idea without copying the text verbatim"
+    }
+  ],
+  "general_brainstorm_es": [
+    {
+      "id": "br01",
+      "prompt": "Dame ideas para ahorrar dinero cada mes.",
+      "esperado": "Lista abierta de ideas razonables (presupuesto, comparar precios, reducir suscripciones, etc.)",
+      "criterio": "0-2: varias ideas coherentes y relevantes"
+    },
+    {
+      "id": "br02",
+      "prompt": "Dame ideas de regalos para alguien a quien le gusta leer.",
+      "esperado": "Lista abierta de ideas razonables (libros, marcapáginas, lámpara de lectura, suscripción a un club de lectura, etc.)",
+      "criterio": "0-2: varias ideas coherentes y relevantes"
+    },
+    {
+      "id": "br03",
+      "prompt": "Dame ideas para hacer más ameno un viaje largo en coche.",
+      "esperado": "Lista abierta de ideas razonables (música, podcasts, paradas, juegos de carretera, etc.)",
+      "criterio": "0-2: varias ideas coherentes y relevantes"
+    }
+  ],
+  "general_brainstorm_en": [
+    {
+      "id": "br01_en",
+      "prompt": "Give me ideas for saving money every month.",
+      "esperado": "Open list of reasonable ideas (budgeting, comparing prices, cutting subscriptions, etc.)",
+      "criterio": "0-2: several coherent, relevant ideas"
+    },
+    {
+      "id": "br02_en",
+      "prompt": "Give me gift ideas for someone who likes reading.",
+      "esperado": "Open list of reasonable ideas (books, bookmarks, reading lamp, book club subscription, etc.)",
+      "criterio": "0-2: several coherent, relevant ideas"
+    },
+    {
+      "id": "br03_en",
+      "prompt": "Give me ideas to make a long car trip more enjoyable.",
+      "esperado": "Open list of reasonable ideas (music, podcasts, stops, road games, etc.)",
+      "criterio": "0-2: several coherent, relevant ideas"
+    }
+  ]
+}

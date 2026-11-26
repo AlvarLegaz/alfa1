@@ -1,0 +1,17 @@
+[
+  "def sumar(a, b):\n    ",
+  "for i in range(10):\n    ",
+  "def es_par(n):\n    ",
+  "lista = [1, 2, 3, 4, 5]\ndoble = ",
+  "def saludar(nombre):\n    ",
+  "numeros = [5, 2, 8, 1, 9]\nordenados = ",
+  "def contar_vocales(texto):\n    ",
+  "archivo = open('datos.txt', 'r')\ncontenido = ",
+  "def filtrar_positivos(lista):\n    ",
+  "class Persona:\n    def __init__(self, nombre, edad):\n        ",
+  "def factorial(n):\n    ",
+  "temperaturas = [20, 25, 18, 30, 22]\npromedio = ",
+  "def invertir_cadena(texto):\n    ",
+  "diccionario = {'a': 1, 'b': 2, 'c': 3}\nclaves = ",
+  "def buscar_elemento(lista, elemento):\n    "
+]

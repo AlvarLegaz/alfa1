@@ -1,0 +1,31 @@
+# Pesos y checkpoints (van en Hugging Face o son privados)
+*.pt
+*.pth
+*.safetensors
+*.gguf
+*.bin
+*.ckpt
+checkpoints*/
+gguf_export/
+# Datos de entrenamiento, salidas y bancos privados
+Alfa1_sft_data/
+juez_out/
+*conjunto_referencia*
+*.jsonl
+*.sqlite
+*.joblib
+# Binarios, logs y temporales
+*.dll
+*.exe
+*.log
+*.err
+*.bak*
+__pycache__/
+*.pyc
+.pytest_cache/
+# Secretos y configuracion local
+.env
+*token*.txt
+*api_key*
+*ssh_key*
+config.local.*

@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<title>Alfa1.2 — Chat de prueba</title>
+<style>
+  :root {
+    --bg: #0f1115; --panel: #171a21; --border: #2a2f3a; --text: #e8e8ea;
+    --muted: #8b909c; --accent: #4f8cff; --user-bubble: #2c3550; --asst-bubble: #1f2430;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; }
+  body {
+    margin: 0; font-family: -apple-system, Segoe UI, Roboto, sans-serif;
+    background: var(--bg); color: var(--text); display: flex;
+    height: 100dvh; overflow: hidden;
+  }
+
+  /* Barra superior: solo visible en movil (boton de ajustes + titulo) */
+  #topbar {
+    display: none; align-items: center; gap: 10px; padding: 10px 14px;
+    background: var(--panel); border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; z-index: 5;
+  }
+  #topbar h1 { font-size: 15px; margin: 0; flex: 1; }
+  #btn-ajustes {
+    background: #232838; color: var(--text); border: 1px solid var(--border);
+    border-radius: 8px; width: 40px; height: 40px; font-size: 18px; cursor: pointer;
+  }
+
+  #overlay {
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 8;
+  }
+  #overlay.show { display: block; }
+
+  #sidebar {
+    width: 280px; min-width: 280px; background: var(--panel); border-right: 1px solid var(--border);
+    padding: 16px; display: flex; flex-direction: column; gap: 16px; overflow-y: auto;
+  }
+  #sidebar h1 { font-size: 15px; margin: 0 0 4px; }
+  #sidebar .hint { font-size: 12px; color: var(--muted); margin-top: -8px; }
+  label { font-size: 13px; color: var(--muted); display: block; margin-bottom: 6px; }
+  select, input[type=range] { width: 100%; }
+  select {
+    background: #11141b; color: var(--text); border: 1px solid var(--border);
+    padding: 10px 6px; border-radius: 6px; font-size: 15px;
+  }
+  input[type=range] { height: 32px; }
+  .param-row { margin-bottom: 14px; }
+  .param-row .val { float: right; color: var(--accent); font-weight: 600; }
+  button#nuevo {
+    background: #232838; color: var(--text); border: 1px solid var(--border);
+    padding: 12px; border-radius: 6px; cursor: pointer; font-size: 14px;
+  }
+  button#nuevo:hover { background: #2b3245; }
+
+  #main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+  #chat { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 20px; display: flex; flex-direction: column; gap: 14px; }
+  .msg { max-width: 78%; padding: 10px 14px; border-radius: 12px; line-height: 1.45; white-space: pre-wrap; font-size: 15px; word-wrap: break-word; }
+  .user { align-self: flex-end; background: var(--user-bubble); }
+  .asst { align-self: flex-start; background: var(--asst-bubble); }
+  .meta { font-size: 11px; color: var(--muted); margin-top: 4px; }
+  #inputbar {
+    display: flex; gap: 8px; padding: 12px; border-top: 1px solid var(--border); background: var(--panel);
+    padding-bottom: max(12px, env(safe-area-inset-bottom));
+  }
+  #inputbar textarea {
+    flex: 1; resize: none; background: #11141b; color: var(--text); border: 1px solid var(--border);
+    border-radius: 8px; padding: 12px; font-size: 16px; font-family: inherit;
+    /* font-size >=16px evita el zoom automatico de iOS al enfocar */
+  }
+  #inputbar button {
+    background: var(--accent); color: white; border: none; padding: 0 20px; border-radius: 8px;
+    cursor: pointer; font-size: 15px; min-width: 64px;
+  }
+  #inputbar button:disabled { background: #2a3040; cursor: not-allowed; }
+  .thinking { color: var(--muted); font-style: italic; }
+  .warn { color: #e8a23a; }
+
+  /* --- Movil: sidebar se convierte en cajon deslizante --- */
+  @media (max-width: 768px) {
+    #topbar { display: flex; }
+    #sidebar {
+      position: fixed; top: 0; left: 0; bottom: 0; z-index: 9;
+      transform: translateX(-100%); transition: transform .2s ease-out;
+      width: 82vw; max-width: 320px; box-shadow: 2px 0 12px rgba(0,0,0,.4);
+      padding-top: max(16px, env(safe-area-inset-top));
+    }
+    #sidebar.open { transform: translateX(0); }
+    #sidebar h1 { display: none; } /* el titulo ya esta en la topbar */
+    #sidebar > div:first-child { display: none; }
+    .msg { max-width: 88%; }
+  }
+</style>
+</head>
+<body>
+
+<div id="overlay"></div>
+
+<div id="sidebar">
+  <div>
+    <h1>Alfa1.2 — Chat directo</h1>
+    <div class="hint">Sin Ollama. PyTorch puro, checkpoint SFT.</div>
+  </div>
+
+  <div>
+    <label for="checkpoint">Checkpoint</label>
+    <select id="checkpoint"></select>
+  </div>
+
+  <button id="nuevo">+ Nueva conversación</button>
+
+  <hr style="border-color: var(--border); width: 100%;">
+
+  <div class="param-row">
+    <label><input type="checkbox" id="modo_agente" style="width:auto; margin-right:6px;">Modo agente (ReAct)</label>
+    <div class="hint" style="margin-top:4px;">Ejecuta buscar[]/calcular[] DE VERDAD (índice Wikipedia-ES + calculadora real), inyectando la Observation real entre ciclos. Ignora el historial de chat libre (cada mensaje es una pregunta nueva). Ver D:/Generar_SFT/agente_react/.</div>
+  </div>
+
+  <hr style="border-color: var(--border); width: 100%;">
+
+  <div class="param-row">
+    <label>Temperatura <span class="val" id="val-temp">0.30</span></label>
+    <input type="range" id="temperature" min="0.05" max="1.2" step="0.05" value="0.30">
+  </div>
+  <div class="param-row">
+    <label>Top-k <span class="val" id="val-topk">30</span></label>
+    <input type="range" id="top_k" min="1" max="100" step="1" value="30">
+  </div>
+  <div class="param-row">
+    <label>Penalización de repetición <span class="val" id="val-rep">1.30</span></label>
+    <input type="range" id="repetition_penalty" min="1.0" max="1.8" step="0.05" value="1.30">
+  </div>
+  <div class="param-row">
+    <label>Ventana de repetición (tokens) <span class="val" id="val-win">60</span></label>
+    <input type="range" id="repetition_window" min="0" max="300" step="10" value="60">
+  </div>
+  <div class="param-row">
+    <label>Máx. tokens de respuesta <span class="val" id="val-max">300</span></label>
+    <input type="range" id="max_new_tokens" min="50" max="800" step="10" value="300">
+  </div>
+  <div class="param-row">
+    <label>Turnos de historial <span class="val" id="val-hist">2</span></label>
+    <input type="range" id="max_history_turns" min="0" max="10" step="1" value="2">
+    <div class="hint" style="margin-top:4px;">El corpus SFT no tiene ejemplos de más de 2 turnos: a partir de ahí el modelo suele colapsar a respuestas genéricas. Sube esto solo para comprobarlo a propósito.</div>
+  </div>
+
+  <div class="hint">Cada turno se registra en <code>logs_chat_web/</code> para análisis posterior (prompt, respuesta cruda y limpia, si paró en &lt;FIN&gt;, parámetros).</div>
+</div>
+
+<div id="main">
+  <div id="topbar">
+    <button id="btn-ajustes" aria-label="Ajustes">☰</button>
+    <h1>Alfa1.2 — Chat directo</h1>
+  </div>
+  <div id="chat"></div>
+  <div id="inputbar">
+    <textarea id="mensaje" rows="2" placeholder="Escribe un mensaje… (Enter para enviar, Shift+Enter para salto de línea)"></textarea>
+    <button id="enviar">Enviar</button>
+  </div>
+</div>
+
+<script>
+let historial = [];
+let enviando = false;
+
+const $ = (id) => document.getElementById(id);
+const chatDiv = $("chat");
+
+function actualizarEtiquetas() {
+  $("val-temp").textContent = $("temperature").value;
+  $("val-topk").textContent = $("top_k").value;
+  $("val-rep").textContent = $("repetition_penalty").value;
+  $("val-win").textContent = $("repetition_window").value;
+  $("val-max").textContent = $("max_new_tokens").value;
+  $("val-hist").textContent = $("max_history_turns").value;
+}
+["temperature","top_k","repetition_penalty","repetition_window","max_new_tokens","max_history_turns"].forEach(id => {
+  $(id).addEventListener("input", actualizarEtiquetas);
+});
+actualizarEtiquetas();
+
+async function cargarCheckpoints() {
+  const r = await fetch("/api/checkpoints");
+  const data = await r.json();
+  const sel = $("checkpoint");
+  sel.innerHTML = "";
+  data.checkpoints.forEach(c => {
+    const opt = document.createElement("option");
+    opt.value = c; opt.textContent = c.includes("gemma3_4b_base")
+      ? "Alfa1-G-4B-it (Gemma-3 4B)"
+      : c.replace("alpha_1_sft_alpaca_plus_", "").replace("_best.pt", "");
+    sel.appendChild(opt);
+  });
+  if (!data.checkpoints.length) {
+    const opt = document.createElement("option");
+    opt.textContent = "(sin checkpoints encontrados)";
+    sel.appendChild(opt);
+  }
+}
+cargarCheckpoints();
+
+function pintarMensaje(role, texto, metaTexto) {
+  const div = document.createElement("div");
+  div.className = "msg " + (role === "user" ? "user" : "asst");
+  div.textContent = texto;
+  if (metaTexto) {
+    const meta = document.createElement("div");
+    meta.className = "meta";
+    meta.textContent = metaTexto;
+    div.appendChild(meta);
+  }
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+  return div;
+}
+
+$("nuevo").addEventListener("click", () => {
+  historial = [];
+  chatDiv.innerHTML = "";
+  cerrarAjustes();
+});
+
+// --- Cajon de ajustes en movil ---
+function abrirAjustes() {
+  $("sidebar").classList.add("open");
+  $("overlay").classList.add("show");
+}
+function cerrarAjustes() {
+  $("sidebar").classList.remove("open");
+  $("overlay").classList.remove("show");
+}
+$("btn-ajustes").addEventListener("click", abrirAjustes);
+$("overlay").addEventListener("click", cerrarAjustes);
+
+async function enviarMensaje() {
+  if (enviando) return;
+  const texto = $("mensaje").value.trim();
+  if (!texto) return;
+  enviando = true;
+  $("enviar").disabled = true;
+  $("mensaje").value = "";
+
+  pintarMensaje("user", texto);
+  const pensando = pintarMensaje("asst", "generando…");
+  pensando.classList.add("thinking");
+
+  const params = {
+    temperature: parseFloat($("temperature").value),
+    top_k: parseInt($("top_k").value),
+    repetition_penalty: parseFloat($("repetition_penalty").value),
+    repetition_window: parseInt($("repetition_window").value),
+    max_new_tokens: parseInt($("max_new_tokens").value),
+    max_history_turns: parseInt($("max_history_turns").value),
+  };
+
+  try {
+    const r = await fetch("/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        historial: historial,
+        mensaje: texto,
+        checkpoint: $("checkpoint").value,
+        params: params,
+        modo_agente: $("modo_agente").checked,
+      }),
+    });
+    const data = await r.json();
+    pensando.classList.remove("thinking");
+    if (data.error) {
+      pensando.textContent = "[error] " + data.error;
+      pensando.classList.add("warn");
+    } else {
+      pensando.textContent = data.respuesta;
+      const meta = document.createElement("div");
+      meta.className = "meta";
+      let m = data.tokens_generados + " tok · " + data.segundos + "s";
+      if (data.traza_agente) m += " · " + data.traza_agente.length + " turnos de ciclo";
+      else if (!data.paro_en_fin) m += " · ⚠ no paró en <FIN> (cortado por límite)";
+      meta.textContent = m;
+      pensando.appendChild(meta);
+
+      if (!$("modo_agente").checked) {
+        historial.push({ role: "user", content: texto });
+        historial.push({ role: "assistant", content: data.respuesta });
+      }
+    }
+  } catch (e) {
+    pensando.classList.remove("thinking");
+    pensando.textContent = "[error de red] " + e;
+    pensando.classList.add("warn");
+  }
+
+  enviando = false;
+  $("enviar").disabled = false;
+  $("mensaje").focus();
+}
+
+$("enviar").addEventListener("click", enviarMensaje);
+$("mensaje").addEventListener("keydown", (e) => {
+  if (e.key === "Enter" && !e.shiftKey) {
+    e.preventDefault();
+    enviarMensaje();
+  }
+});
+</script>
+</body>
+</html>
